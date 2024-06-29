@@ -3,8 +3,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   nitro: {
-    preset: "cloudflare-pages"
+    preset: "cloudflare-pages",
   },
-
-  modules: ["nitro-cloudflare-dev"]
+  colorMode: {
+    preference: 'light'
+  },
+  modules: ["nitro-cloudflare-dev", "@nuxt/ui"],
 })
