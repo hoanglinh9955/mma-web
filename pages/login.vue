@@ -1,6 +1,5 @@
 <script setup>
-
-const datadata = ref(null);
+const router = useRouter()
 const state = reactive({
   email: 'user@example.com',
   password: 'stringst',
@@ -32,13 +31,11 @@ async function onSubmit(event) {
     body: {
       email: state.email,
       password: state.password
-    },
-    headers: {
-      'Content-Type': 'application/json',
     }
   });
-  datadata.value = data;
   console.log(data);
+  localStorage.setItem('userData', JSON.stringify(data.value.result));
+  router.push('/instructor/dashboard/home');
 }
 
 async function onError(event) {
@@ -51,7 +48,6 @@ async function onError(event) {
 <template>
   <div class="flex flex-col h-screen items-center justify-center">
     <h1 class="text-4xl font-bold mb-4">Login</h1>
-    {{ datadata }}
     <UForm :validate="validate" :state="state" class="space-y-5 w-2/6" @submit="onSubmit" @error="onError">
       <UFormGroup label="Email" name="email">
         <UInput v-model="state.email" />
