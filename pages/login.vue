@@ -26,7 +26,7 @@ const validate = (state) => {
 };
 
 async function onSubmit(event) {
-  const { data } = await useFetch('https://mma.hoanglinh9955.workers.dev/api/auth/login', {
+  const data = await $fetch('https://mma.hoanglinh9955.workers.dev/api/auth/login', {
     method: 'POST',
     body: {
       email: state.email,
@@ -34,7 +34,7 @@ async function onSubmit(event) {
     }
   });
   console.log(data);
-  localStorage.setItem('userData', JSON.stringify(data.value.result));
+  localStorage.setItem('userData', JSON.stringify(data.result));
   router.push('/instructor/dashboard/home');
 }
 

@@ -69,11 +69,11 @@ onMounted( async () => {
       }
 
       // Continue with your logic here...
-      const { data } = await useFetch('https://mma.hoanglinh9955.workers.dev/api/auth/check', {
+      const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/auth/check', {
         query: { tokenSession: `${userData.session.token}` },
       });
-      console.log(data);
-      if(!data.value.success){
+      console.log(response);
+      if(!response.success){
         localStorage.removeItem('userData');
         router.push('/login')
       }
@@ -99,13 +99,14 @@ const links = [{
   icon: 'i-heroicons-home',
   to: '/instructor/dashboard/home',
 }
-,{
-  icon: 'i-heroicons-cube',
-  label: 'Orders',
-  to: '/instructor/dashboard/courses',
-},{
-  label: 'Trang Chủ',
-  icon: 'i-heroicons-home',
-  to: '/instructor/dashboard/profile',
-}]
+// ,{
+//   icon: 'i-heroicons-cube',
+//   label: 'Orders',
+//   to: '/instructor/dashboard/courses',
+// },{
+//   label: 'Trang Chủ',
+//   icon: 'i-heroicons-home',
+//   to: '/instructor/dashboard/profile',
+// }
+]
 </script>

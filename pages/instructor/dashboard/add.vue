@@ -5,74 +5,79 @@
 
 
 
-            <UForm :validate="validate" :state="course.courseData" @error="onError"
+            <UForm :validate="validateCourse" :state="course.courseData" @error="onError"
                 class="pt-20 flex flex-col space-y-8">
                 <!-- image and title -->
                 <div class="flex w-full justify-around">
                     <div class="flex flex-col space-y-4 w-1/3 items-center">
-                        <UFormGroup class="w-full" label="Image Product" name="image_url">
+                        <UFormGroup class="w-full" label="Image Product" name="course_content_url">
                             <UButtonGroup size="lg" orientation="horizontal">
                                 <UInput type="file" @change="onFileChange" />
                                 <UButton @click="uploadFile" :disabled="!isHaveImage" :loading="isUploadImage"
                                     icon="i-heroicons-arrow-up-circle" color="gray" />
                             </UButtonGroup>
                         </UFormGroup>
+                        
                         <div class="w-full">
+                            <h3 class="text-red-500 animate-bounce" v-if="checkFormImage">Please Upload Image Before Submit Form</h3>
+                            <h3 class="text-primary-300 animate-pulse" v-if="isUploadImage" >Image Is Upload To Server Please Wait a seconds</h3>
                             <img v-if="checkImage" :src="course.courseData.image_url"
                                 class="w-80 h-full object-cover rounded-xl" />
-                            <div v-if="isUploadImage"
+                            <!-- <div v-if="isUploadImage"
                                 class="animate-spin w-8 h-8 border-4 border-dashed rounded-full border-gray-400 mx-auto mt-4">
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                     <!-- right side -->
                     <div class="w-1/2 flex flex-col space-y-3">
-                        <UFormGroup label="Title" name="title">
-                            <UInput size="lg" v-model="course.courseData.title" />
-                        </UFormGroup>
-
-                        <UFormGroup label="Price" name="price">
-                            <UInput size="lg" v-model="course.courseData.price" />
+                        <UFormGroup label="Title" name="course_title">
+                            <UInput placeholder="Advance Component" size="lg" v-model="course.courseData.title" />
                         </UFormGroup>
                         <div class="flex w-full space-x-1">
-                            <UFormGroup class="w-1/2" label="Choose Category" name="category">
+                            <UFormGroup class="w-1/2" label="Price" name="course_price">
+                                <UInput placeholder="90000" type="number" size="lg" v-model="course.courseData.price" />
+                            </UFormGroup>
+                            <UFormGroup class="w-1/2" label="Hours" name="course_hour">
+                                <UInput placeholder="300" type="number" size="lg" v-model="course.courseData.hour" />
+                            </UFormGroup>
+                        </div>
+                        
+                        <div class="flex w-full space-x-1">
+                            <UFormGroup class="w-1/2" label="Choose Category" name="course_category">
                                 <USelect placeholder="Category" size="lg" :options="categories"
                                     v-model="course.courseData.category" />
                             </UFormGroup>
-                            <UFormGroup class="w-1/2" label="Is Trial" name="is_trial">
-                                <USelect placeholder="Is Trial" size="lg" :options="[true, false]"
-                                    v-model="course.courseData.is_trial" />
+                            <UFormGroup class="w-1/2" label="Is Trial" name="course_is_trial">
+                                <USelect placeholder="Is Trial" size="lg" :options="yesNo"
+                                    v-model="isTrialString" />
                             </UFormGroup>
                         </div>
 
                     </div>
                 </div>
                 <div class="flex justify-center items-center">
-                    <UFormGroup class="w-full px-10" label="Description" name="description">
-                        <UTextarea resize size="lg" v-model="course.courseData.description" />
+                    <UFormGroup class="w-full px-10" label="Description" name="course_description">
+                        <UTextarea placeholder="This is Description" resize size="lg" v-model="course.courseData.description" />
                     </UFormGroup>
                 </div>
-
-
             </UForm>
 
             <h1 class="text-2xl font-bold text-center py-10">Add Chapter</h1>
 
             <div v-for="(chapter, index) in course.chapterData" :key="index">
                 <UDivider  size="sm"
-                                :label="chapter.id + 1"
+                                :label="(chapter.id + 1).toString() + '. ' + chapter.title"
                                 :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
                                 class="py-8" />
 
-                <UForm class="pt-5 flex flex-col space-y-8">
+                <UForm :validate="validateChapter" :state="chapter" class="pt-5 flex flex-col space-y-8">
                     <!-- image and title -->
                     <div class="flex w-full justify-around">
                         <div class="w-1/3 flex flex-col space-y-3">
-                            <UFormGroup label="Title" name="title">
+                            <UFormGroup label="Title" name="chapter_title">
                                 <UInput size="lg" v-model="chapter.title" />
                             </UFormGroup>
-                            {{ chapter }}
-                            <UFormGroup label="Descriptioin" name="description">
+                            <UFormGroup label="Description" name="chapter_description">
                                 <UTextarea size="lg" v-model="chapter.description" />
                             </UFormGroup>
                         </div>
@@ -81,43 +86,116 @@
                             <UFormGroup class="w-full" label="File Video" name="image_url">
                                 <UButtonGroup size="lg" orientation="horizontal">
                                     <UInput type="file" @change="(event) => onFileVideoChange(event, chapter.id)" />
-                                    <UButton @click="uploadFileChapter(chapter.id)" :disabled="!chapter.isHaveFile"
-                                        icon="i-heroicons-arrow-up-circle" color="gray" />
+                                    <UButton @click="uploadFileChapter(chapter.id)" 
+                                            :disabled="!chapter.isHaveFile"
+                                            icon="i-heroicons-arrow-up-circle"
+                                            color="gray"
+                                            :loading="chapter.isUploadFile" />
                                 </UButtonGroup>
                             </UFormGroup>
-                            <div class="w-full flex flex-col items-center">
+                            <div class="w-full flex flex-col items-start">
+                                <h3 class="text-red-500 animate-bounce" v-if="checkFormFile(chapter)">Please Upload Image Before Submit Form</h3>
+                                <h3 class="text-primary-300 animate-pulse" v-if="chapter.isUploadFile" >Video Is Upload To Server Please Wait a seconds</h3>
                                 <video v-if="chapter.content_url && !chapter.isUploadFile" :src="chapter.content_url"
                                     class="w-full h-full object-cover rounded-xl" controls></video>
-                                <div v-if="chapter.isUploadFile"
+                                <!-- <div v-if="chapter.isUploadFile"
                                     class="animate-spin w-8 h-8 border-4 border-dashed rounded-full border-gray-400 mx-auto mt-4">
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
-                    
-                    <div v-if="chapter.id == course.chapterData.length - 1" class="flex justify-center items-center pb-10">
-                        <UButton @click="addChapter" icon="i-heroicons-plus" color="gray">Add Chapter</UButton>
+                    <div class="flex justify-between items-end py-10">
+                        <div></div>
+                        <div v-if="chapter.id == course.chapterData.length - 1" class="flex flex-col space-y-2">
+                            <UButton block class="w-48" @click="addChapter" icon="i-heroicons-plus" color="gray">Add Chapter</UButton>
+                            <UButton block v-if="chapter.id < course.chapterData.length && chapter.id != 0" class="w-48" @click="checkChapter(index)" icon="i-heroicons-minus" color="primary">Remove Chapter {{ chapter.id + 1 }} </UButton>
+                        </div>
+                        <UButton block v-if="chapter.id == course.chapterData.length - 1" class="w-48" @click="checkForm" icon="i-heroicons-check" color="red">Submit</UButton>
                     </div>
+                    
 
 
                 </UForm>
             </div>
-
+      
 
         </UContainer>
+        <UModal v-model="isOpen">
+            <div class="p-4">
+            <h1 class="text-xl font-bold text-center py-10">Are You Sure Upload This Course?</h1>
+            <div class="flex justify-around pb-5"> 
+                <UButton block class="w-32" size="lg" @click="isOpen = false" color="gray">Close</UButton>
+                <UButton :loading="isSubmit" block class="w-32" @click="onSubmit" color="red">Submit</UButton>
+            </div>
+            </div>
+          </UModal>
+          <UModal v-model="isRemoveChapter">
+            <div class="p-4">
+            <h1 class="text-xl font-bold text-center py-10">Are You Sure To Remove This Chapter?</h1>
+            <div class="flex justify-around pb-5"> 
+                <UButton block class="w-32" size="lg" @click="isRemoveChapter = false" color="gray">Close</UButton>
+                <UButton :loading="isSubmit" block class="w-32" @click="removeChapter(removeChapterId)" color="red">Remove</UButton>
+            </div>
+            </div>
+          </UModal>
     </div>
 </template>
 
 <script setup>
 const router = useRouter()
+const toast = useToast()
+const isSubmit = ref(false)
+const isRemoveChapter = ref(false);
+const removeChapterId = ref(null)
+
+const userDataString = localStorage.getItem('userData')
+const userData = JSON.parse(userDataString)
+const token = userData.session.token
 //image upload
 const fileImage = ref(null);
 const isHaveImage = ref(false);
 const isUploadImage = ref(false);
+const isTrialString = ref('')
+//modal
+const isOpen = ref(false)
+
+const checkForm = () => {
+    const errors = []
+    for (let i = 0; i < course.value.chapterData.length; i++) {
+        if (course.value.chapterData[i].content_url == '' 
+        || course.value.chapterData[i].title == ''
+        || course.value.chapterData[i].description == '') {
+            errors.push(course.value.chapterData[i])
+        }
+    }
+    if(course.value.courseData.image_url == ''
+    || course.value.courseData.title == ''
+    || course.value.courseData.description == ''
+    || course.value.courseData.price < 0
+    || !course.value.courseData.price
+    || course.value.courseData.hour < 0
+    || !course.value.courseData.hour
+    || course.value.courseData.category == ''
+    || isTrialString.value == ''
+    ){
+        errors.push('Image')
+    }  
+    if(errors.length > 0){
+        toast.add({title: 'Error', description: 'Please Upload All File And Type All Data Before Submit Form', icon: 'i-heroicons-information-circle', color: 'red', duration: 5000, isClosable: true})
+    }else{
+        isOpen.value = true
+    }
+};
 
 //category
 const categories = ['Basic', 'Intermediate', 'Advanced'];
-
+const yesNo = ['Yes', 'No'];
+const checkFormImage = computed(() => {
+    return !course.value.courseData.image_url && fileImage.value && !isUploadImage.value;
+});
+const checkFormFile = (chapter) => {
+    return !chapter.content_url && chapter.fileVideo && !chapter.isUploadFile;
+};
 const checkImage = computed(() => {
     return course.value.courseData.image_url && !isUploadImage.value;
 });
@@ -127,18 +205,19 @@ const course = ref({
     courseData: {
         title: "",
         description: "",
-        price: 0,
+        price: null,
+        hour: null,
         category: "",
-        is_trial: null,
+        is_trial: false,
         is_verify: false,
-        is_submit: false,
+        is_submit: true,
         image_url: "",
-        create_at: 0
+        create_at: 0,
     },
     chapterData: [
         {
             id: 0,
-            title: "LinhHoang",
+            title: "",
             description: "",
             content_url: "",
             fileVideo: null,
@@ -150,6 +229,7 @@ const course = ref({
 
 
 const addChapter = () => {
+    toast.add({title: 'Success', description: 'Add Chapter Success', icon: 'i-heroicons-check-circle', color: 'green', duration: 5000, isClosable: true})
     course.value.chapterData.push({
         id: course.value.chapterData.length,
         title: "",
@@ -161,39 +241,76 @@ const addChapter = () => {
     });
 };
 
+const checkChapter = (index) => {
+    removeChapterId.value = index
+    isRemoveChapter.value = true
+    
+};
+
 const removeChapter = (index) => {
+    isSubmit.value = true
     course.value.chapterData.splice(index, 1);
-};
-const validate = (state) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    state.errors = [];
-
-    if (!state.email) {
-        state.errors.push({ path: 'email', message: 'Email is required' });
-    } else if (!emailRegex.test(state.email)) {
-        state.errors.push({ path: 'email', message: 'Please enter a valid email address' });
-    }
-
-    if (!state.password) {
-        state.errors.push({ path: 'password', message: 'Password is required' });
-    } else if (state.password.length < 8 || state.password.length > 16) {
-        state.errors.push({ path: 'password', message: 'Password must be 8-16 characters long' });
-    }
-
-    return state.errors;
+    toast.add({title: 'Success', description: 'Remove Chapter Success', icon: 'i-heroicons-check-circle', color: 'green', duration: 5000, isClosable: true})
+    isRemoveChapter.value = false
+    isSubmit.value = false
 };
 
-async function onSubmit(event) {
-    const { data } = await useFetch('https://mma.hoanglinh9955.workers.dev/api/auth/login', {
+const validateCourse = (state) => {
+    const errors = []
+  if (!course.value.courseData.title) errors.push({ path: 'course_title', message: 'Required' })
+  if (!course.value.courseData.description) errors.push({ path: 'course_description', message: 'Required' })
+  if (!course.value.courseData.category) errors.push({ path: 'course_category', message: 'Required' })
+  if (!isTrialString) errors.push({ path: 'course_is_trial', message: 'Required' })
+  if (!course.value.courseData.price) errors.push({ path: 'course_price', message: 'Required' })
+  if (course.value.courseData.price < 0) errors.push({ path: 'course_price', message: 'Price must greater than 0' })
+  if (!course.value.courseData.hour) errors.push({ path: 'course_hour', message: 'Required' })
+  if (course.value.courseData.hour < 0) errors.push({ path: 'course_hour', message: 'Hours must greater than 0' })
+  return errors
+};
+
+const validateChapter = (state) => {
+    const errors = []
+    if (!state.title) errors.push({ path: "chapter_title", message: 'Required' })
+    if (!state.description) errors.push({ path: "chapter_description", message: 'Required' })
+  
+  
+  return errors
+};
+
+async function onSubmit() {
+    isSubmit.value = true
+    course.value.courseData.create_at = Date.now();
+    if(isTrialString.value == 'Yes'){
+        course.value.courseData.is_trial = true
+    }else{
+        course.value.courseData.is_trial = false
+    }
+    const courseDataUpload = course.value.courseData;
+    const chapterDataUpload = course.value.chapterData.map(chapter => {
+        return {
+            title: chapter.title,
+            description: chapter.description,
+            content_url: chapter.content_url
+        }
+    }); 
+
+    const data  = await $fetch('https://mma.hoanglinh9955.workers.dev/api/instructor/course', {
         method: 'POST',
         body: {
-            email: state.email,
-            password: state.password
+            courseData: courseDataUpload,
+            chapterData: chapterDataUpload
+        },
+        headers: {
+            'Authorization': 'Bearer ' + token,
         }
     });
     console.log(data);
-    localStorage.setItem('userData', JSON.stringify(data.value.result));
-    router.push('/instructor/dashboard/home');
+    if(data.success){
+        toast.add({title: 'Success', description: 'Upload Course Success', icon: 'i-heroicons-check-circle', color: 'green', duration: 5000, isClosable: true})
+        isSubmit.value = false
+        router.push('/instructor/dashboard/home')
+    }
+    isSubmit.value = false
 }
 
 async function onError(event) {
