@@ -44,12 +44,15 @@
 </template>
 
 <script setup>
+import { reloadState } from '~/stores/storeModal'
 const router = useRouter()
 const isAdmin = ref(false)
 const userDataString = localStorage.getItem('userData')
 const userData = JSON.parse(userDataString)
 const user = ref(userData)
 const toast = useToast()
+
+const token = storeToRefs(reloadState()).token
 
 const logout = () => {
   localStorage.removeItem('userData')
@@ -86,6 +89,7 @@ onMounted( async () => {
       } else {
         // Set isAdmin to true if the role is instructor (or any other logic you need)
         isAdmin.value = true
+        token.value = userData.session.token
       }
     } else {
       // If there's no userData in localStorage, navigate to login

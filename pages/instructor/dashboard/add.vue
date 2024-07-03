@@ -37,7 +37,7 @@
                             <UFormGroup class="w-1/2" label="Price" name="course_price">
                                 <UInput placeholder="90000" type="number" size="lg" v-model="course.courseData.price" />
                             </UFormGroup>
-                            <UFormGroup class="w-1/2" label="Hours" name="course_hour">
+                            <UFormGroup class="w-1/2" label="Minute" name="course_hour">
                                 <UInput placeholder="300" type="number" size="lg" v-model="course.courseData.hour" />
                             </UFormGroup>
                         </div>
@@ -94,7 +94,7 @@
                                 </UButtonGroup>
                             </UFormGroup>
                             <div class="w-full flex flex-col items-start">
-                                <h3 class="text-red-500 animate-bounce" v-if="checkFormFile(chapter)">Please Upload Image Before Submit Form</h3>
+                                <h3 class="text-red-500 animate-bounce" v-if="checkFormFile(chapter)">Please Upload Video Before Submit Form</h3>
                                 <h3 class="text-primary-300 animate-pulse" v-if="chapter.isUploadFile" >Video Is Upload To Server Please Wait a seconds</h3>
                                 <video v-if="chapter.content_url && !chapter.isUploadFile" :src="chapter.content_url"
                                     class="w-full h-full object-cover rounded-xl" controls></video>
@@ -122,7 +122,7 @@
         </UContainer>
         <UModal v-model="isOpen">
             <div class="p-4">
-            <h1 class="text-xl font-bold text-center py-10">Are You Sure Upload This Course?</h1>
+            <h1 class="text-xl font-bold text-center py-10">Are you sure, this action can not be reversed?</h1>
             <div class="flex justify-around pb-5"> 
                 <UButton block class="w-32" size="lg" @click="isOpen = false" color="gray">Close</UButton>
                 <UButton :loading="isSubmit" block class="w-32" @click="onSubmit" color="red">Submit</UButton>
@@ -188,7 +188,7 @@ const checkForm = () => {
 };
 
 //category
-const categories = ['Basic', 'Intermediate', 'Advanced'];
+const categories = ['Basic', 'Intermediate', 'Advance'];
 const yesNo = ['Yes', 'No'];
 const checkFormImage = computed(() => {
     return !course.value.courseData.image_url && fileImage.value && !isUploadImage.value;
@@ -285,6 +285,13 @@ async function onSubmit() {
     }else{
         course.value.courseData.is_trial = false
     }
+    if(course.value.courseData.category == 'Basic'){
+        course.value.courseData.category = 'basic'
+    }else if(course.value.courseData.category == 'Intermediate'){
+        course.value.courseData.category = 'intermediate'
+    }else if(course.value.courseData.category == 'Advance'){
+        course.value.courseData.category = 'advance'
+    }
     const courseDataUpload = course.value.courseData;
     const chapterDataUpload = course.value.chapterData.map(chapter => {
         return {
@@ -356,9 +363,9 @@ try {
 } catch (error) {
     console.error('Error uploading image:', error);
     course.value.chapterData[chapterId].fileVideo = null
-    course.value.chapterData[chapterId].isUploadFile = null
-    course.value.chapterData[chapterId].isHaveFile = null
-    
+    course.value.chapterData[chapterId].isUploadFile = false
+    course.value.chapterData[chapterId].isHaveFile = false
+    course.value.chapterData[chapterId].content_url = ''
     alert('Error uploading File.');
 }
 };
@@ -384,6 +391,7 @@ const uploadFile = async () => {
         isUploadImage.value = false;
         fileImage.value = null;
         isHaveImage.value = false;
+        course.value.courseData.image_url = '';
         alert('Error uploading image.');
     }
 };
