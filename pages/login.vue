@@ -35,7 +35,16 @@ async function onSubmit(event) {
   });
   console.log(data);
   localStorage.setItem('userData', JSON.stringify(data.result));
-  router.push('/instructor/dashboard/home');
+  if(data.result.user.role === 'ADMIN')
+    router.push('/admin/dashboard/user');
+  else if(data.result.user.role === 'INSTRUCTOR')
+    router.push('/instructor/dashboard/home');
+  else if(data.result.user.role === 'STAFF')
+    router.push('/staff/dashboard/home');
+  else{
+    router.push('/login');
+  }
+  // router.push('/instructor/dashboard/home');
 }
 
 async function onError(event) {

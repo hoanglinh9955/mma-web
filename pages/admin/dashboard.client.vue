@@ -34,7 +34,7 @@
         </div>
 
       </div>
-      <div class="w-5/6 h-screen overflow-y-auto">
+      <div class="w-5/6 h-screen overflow-auto">
         <NuxtPage />
       </div>
     </div>
@@ -86,13 +86,13 @@ onMounted( async () => {
         router.push('/login')
       }
       const role = userData?.user?.role
-      if (role !== 'INSTRUCTOR') {
-        // Navigate to login if the role is not instructor
-        toast.add({ title: 'You are not Instructor', timeout: 3000 })
+      if (role !== 'ADMIN') {
+        // Navigate to login if the role is not admin
+        toast.add({ title: 'You are not Admin', timeout: 3000 })
         localStorage.removeItem('userData');
         router.push('/login')
       } else {
-        // Set isAdmin to true if the role is instructor (or any other logic you need)
+        // Set isAdmin to true if the role is admin (or any other logic you need)
         isAdmin.value = true
         token.value = userData.session.token
         userInfor.value = userData.user
@@ -104,20 +104,21 @@ onMounted( async () => {
   }
 })
 
-const links = [{
-  label: 'Home',
-  icon: 'i-heroicons-home',
-  to: '/instructor/dashboard/home',
-}
-,{
-  icon: 'i-heroicons-cube',
-  label: 'Order',
-  to: '/instructor/dashboard/order',
-},
-// {
-//   label: 'Trang Chủ',
+const links = [
+//   {
+//   label: 'Home',
 //   icon: 'i-heroicons-home',
-//   to: '/instructor/dashboard/profile',
-// }
+//   to: '/admin/dashboard/home',
+// },
+{
+  icon: 'i-heroicons-cube',
+  label: 'User',
+  to: '/admin/dashboard/user',
+},
+{
+  label: 'Course',
+  icon: 'i-heroicons-home',
+  to: '/admin/dashboard/course',
+}
 ]
 </script>

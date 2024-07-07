@@ -3,7 +3,7 @@
         <!-- div container -->
         <div class="flex flex-col justify-center items-center">
           <img
-            class="p-4 w-80 h-40 transition-transform duration-500 ease-in-out transform hover:scale-105"
+            class="cursor-pointer p-4 w-80 h-40 transition-transform duration-500 ease-in-out transform hover:scale-105"
             :src="image_url"
             @click="goToDetail(course_id)"
           >
@@ -70,7 +70,7 @@ const goToDetail = (id) => {
 }
 
 defineProps({
-  course_id: String,
+  course_id: Number,
   image_url: String,
   title: String,
   category: String,
