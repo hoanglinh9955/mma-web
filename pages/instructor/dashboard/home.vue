@@ -32,16 +32,23 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { reloadState } from '~/stores/storeModal'
-const token = storeToRefs(reloadState()).token
 
+const checkAuth = storeToRefs(reloadState()).checkAuth
+const token = storeToRefs(reloadState()).token
+const toast = useToast()
 const router = useRouter()
 
+checkAuth.value++
 const courseData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/instructor/getCourseByInstructorId', {
     method: 'GET',
     headers: {
         'Authorization': `Bearer ${token.value}`
     }
   });
+if(!courseData.success){
+  toast.add({title: 'Error', description: courseData.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
+}
+
 const addCourse = () => {
     router.push('/instructor/dashboard/add')
 }

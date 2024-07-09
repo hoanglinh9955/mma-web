@@ -136,7 +136,7 @@
                   <UInput placeholder="mma-web@gmail.com" v-model="email" />
                 </UFormGroup>
                 <UFormGroup class="pb-2" label="Role" name="role">
-                  <USelect placeholder="choose role" :options="['STAFF', 'INSTRUCTOR']" v-model="role" />
+                  <USelect placeholder="choose role" :options="['INSTRUCTOR']" v-model="role" />
                 </UFormGroup>
                 
               </div>
@@ -159,7 +159,8 @@
 import { reloadState } from '~/stores/storeModal'
 const token = storeToRefs(reloadState()).token
 const reload = storeToRefs(reloadState()).reloadState
-const arrayRole = ['All', 'User', 'Instructor', 'Staff']
+const checkAuth = storeToRefs(reloadState()).checkAuth
+const arrayRole = ['All', 'User', 'Instructor']
 const users = ref(null)
 const userList = ref(null)
 const totalUsers = ref(0)
@@ -174,7 +175,7 @@ const totalAmount = ref(0)
 const totalOrders = ref(0)
 
 const orderArray = ref(null)
-
+checkAuth.value++
 const reloadSelect = ref(0)
 const openAdd = () => {
   isAddUser.value = true
@@ -231,7 +232,7 @@ const addNewUser = async () => {
   } else{
 
     isSubmit.value = true
-  const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/addNewUser', {
+  const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/addNewUser', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token.value}`
@@ -267,7 +268,7 @@ const changeStatusFetch = async () => {
     email: modalData.value.email
   }
 
-  const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/changeStatus', {
+  const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/changeStatus', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token.value}`
@@ -283,7 +284,7 @@ const changeStatusFetch = async () => {
   }
 
 }
-const orderData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/getOrder', {
+const orderData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/getOrder', {
   headers: {
     'Authorization': `Bearer ${token.value}`
   }
@@ -309,7 +310,7 @@ if (orderData.success) {
   console.log(orderArray.value)
 }
 
-const usersData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/getAllUsers', {
+const usersData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/getAllUsers', {
   headers: {
         'Authorization': `Bearer ${token.value}`
     }
@@ -340,6 +341,8 @@ if(usersData.success){
   })
   .filter((user) => {
     return user.role !== 'ADMIN'
+  }).filter((user) => {
+    return user.role !== 'STAFF'
   })
 }else{
   users.value = []
@@ -347,7 +350,7 @@ if(usersData.success){
 }
 
 watch(reload, async () => {
-  const usersData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/getAllUsers', {
+  const usersData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/getAllUsers', {
   headers: {
         'Authorization': `Bearer ${token.value}`
     }
@@ -377,6 +380,8 @@ if(usersData.success){
   })
   .filter((user) => {
     return user.role !== 'ADMIN'
+  }).filter((user) => {
+    return user.role !== 'STAFF'
   })
   if(selectedRole.value === 'All') {
     return userList.value
@@ -440,10 +445,6 @@ watchEffect(() => {
   }else if(selectedRole.value === 'Instructor'){
     userList.value = users.value.filter((user) => {
       return user.role === 'INSTRUCTOR'
-    })
-  }else if(selectedRole.value === 'Staff'){
-    userList.value = users.value.filter((user) => {
-      return user.role === 'STAFF'
     })
   }
 })

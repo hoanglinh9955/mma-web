@@ -21,10 +21,10 @@
 
         <div>
           <div class="rounded p-3 flex justify-between space-x-3 bg-white">
-            <img class="rounded-full w-12 h-12 border-2 border-primary-500 " :src="user.user.image_url">
+            <img @click="goToProfile" class="rounded-full w-12 h-12 border-2 border-primary-500 hover:scale-125 hover:-translate-y-1 duration-300 cursor-pointer" :src="userInfor.image_url">
             <div class="text-right">
               <h1 class="font-medium">
-                {{ user.user.user_name }}
+                {{ userInfor.user_name }}
               </h1>
               <button class="text-sm underline text-slate-500" @click="logout">
                 Log out
@@ -52,18 +52,33 @@ const userDataString = localStorage.getItem('userData')
 const userData = JSON.parse(userDataString)
 const user = ref(userData)
 const toast = useToast()
-
+const checkAuth = storeToRefs(reloadState()).checkAuth
 const token = storeToRefs(reloadState()).token
 const userInfor = storeToRefs(reloadState()).userInfor
 
 const goToHome = () => {
   router.push('/instructor/dashboard/home')
 }
+
+const goToProfile = () => {
+  router.push(`/instructor/dashboard/profile/${userInfor.value.user_id}`)
+}
 const logout = () => {
   localStorage.removeItem('userData')
   router.push('/login')
 }
 
+watch(checkAuth, async () => {
+  const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/auth/check', {
+        query: { tokenSession: `${token.value}` },
+      });
+
+      if(!response.success){
+        toast.add({title: 'Error', description: response.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
+        localStorage.removeItem('userData');
+        router.push('/login')
+      }
+})
 onMounted( async () => {
   // Ensure this code runs only on the client side
   if (typeof window !== 'undefined') {
@@ -82,6 +97,7 @@ onMounted( async () => {
       });
       console.log(response);
       if(!response.success){
+        toast.add({title: 'Error', description: response.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
         localStorage.removeItem('userData');
         router.push('/login')
       }
@@ -110,7 +126,7 @@ const links = [{
   to: '/instructor/dashboard/home',
 }
 ,{
-  icon: 'i-heroicons-cube',
+  icon: 'i-heroicons-currency-dollar',
   label: 'Order',
   to: '/instructor/dashboard/order',
 },

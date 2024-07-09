@@ -52,7 +52,7 @@ const userDataString = localStorage.getItem('userData')
 const userData = JSON.parse(userDataString)
 const user = ref(userData)
 const toast = useToast()
-
+const checkAuth = storeToRefs(reloadState()).checkAuth
 const token = storeToRefs(reloadState()).token
 const userInfor = storeToRefs(reloadState()).userInfor
 
@@ -63,6 +63,18 @@ const logout = () => {
   localStorage.removeItem('userData')
   router.push('/login')
 }
+
+watch(checkAuth, async () => {
+  const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/auth/check', {
+        query: { tokenSession: `${token.value}` },
+      });
+
+      if(!response.success){
+        toast.add({title: 'Error', description: response.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
+        localStorage.removeItem('userData');
+        router.push('/login')
+      }
+})
 
 onMounted( async () => {
   // Ensure this code runs only on the client side
@@ -87,9 +99,9 @@ onMounted( async () => {
         router.push('/login')
       }
       const role = userData?.user?.role
-      if (role !== 'ADMIN') {
+      if (role !== 'STAFF') {
         // Navigate to login if the role is not admin
-        toast.add({ title: 'You are not Admin', timeout: 3000 })
+        toast.add({ title: 'You are not Staff', timeout: 3000 })
         localStorage.removeItem('userData');
         router.push('/login')
       } else {
@@ -114,12 +126,12 @@ const links = [
 {
   icon: 'i-heroicons-users',
   label: 'User',
-  to: '/admin/dashboard/user',
+  to: '/staff/dashboard/user',
 },
 {
   label: 'Course',
   icon: 'i-heroicons-circle-stack',
-  to: '/admin/dashboard/course',
+  to: '/staff/dashboard/course',
 }
 ]
 </script>

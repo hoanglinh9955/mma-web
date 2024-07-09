@@ -1,8 +1,10 @@
 <script setup>
+const toast = useToast()
+
 const router = useRouter()
 const state = reactive({
-  email: 'user@example.com',
-  password: 'stringst',
+  email: '',
+  password: '',
   errors: []
 });
 
@@ -33,18 +35,21 @@ async function onSubmit(event) {
       password: state.password
     }
   });
-  console.log(data);
+
+  if(!data.success){
+    toast.add({title: 'Error', description: data.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
+  }
+//  toast.add({title: 'Success', description: 'Delete Comment Successfully', icon: 'i-heroicons-check-circle', color: 'green', duration: 5000, isClosable: true})
   localStorage.setItem('userData', JSON.stringify(data.result));
   if(data.result.user.role === 'ADMIN')
     router.push('/admin/dashboard/user');
   else if(data.result.user.role === 'INSTRUCTOR')
     router.push('/instructor/dashboard/home');
   else if(data.result.user.role === 'STAFF')
-    router.push('/staff/dashboard/home');
+    router.push('/staff/dashboard/user');
   else{
     router.push('/login');
   }
-  // router.push('/instructor/dashboard/home');
 }
 
 async function onError(event) {

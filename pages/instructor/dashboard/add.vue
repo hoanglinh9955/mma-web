@@ -142,6 +142,8 @@
 </template>
 
 <script setup>
+import { reloadState } from '~/stores/storeModal'
+const checkAuth = storeToRefs(reloadState()).checkAuth
 const router = useRouter()
 const toast = useToast()
 const isSubmit = ref(false)
@@ -159,6 +161,7 @@ const isTrialString = ref('')
 //modal
 const isOpen = ref(false)
 
+checkAuth.value++
 const checkForm = () => {
     const errors = []
     for (let i = 0; i < course.value.chapterData.length; i++) {
@@ -211,6 +214,7 @@ const course = ref({
         is_trial: false,
         is_verify: false,
         is_submit: true,
+        is_update: false,
         image_url: "",
         create_at: 0,
     },
@@ -316,6 +320,9 @@ async function onSubmit() {
         toast.add({title: 'Success', description: 'Upload Course Success', icon: 'i-heroicons-check-circle', color: 'green', duration: 5000, isClosable: true})
         isSubmit.value = false
         router.push('/instructor/dashboard/home')
+    }else{
+        toast.add({title: 'Error', description: data.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
+        isSubmit.value = false
     }
     isSubmit.value = false
 }

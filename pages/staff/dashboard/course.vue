@@ -71,6 +71,7 @@
 <script setup>
 import { reloadState } from '~/stores/storeModal'
 const token = storeToRefs(reloadState()).token
+const checkAuth = storeToRefs(reloadState()).checkAuth
 const router = useRouter()
 const array = ['All','Verified','Not Verified']
 const course = ref(null)
@@ -78,7 +79,8 @@ const courseList = ref(null)
 const totalUsers = ref(0)
 const totalInstructors = ref(0)
 const totalStaffs = ref(0) 
-const courseData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/getAllCourses', {
+checkAuth.value++
+const courseData = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/getAllCourses', {
   headers: {
         'Authorization': `Bearer ${token.value}`
     }
@@ -95,7 +97,7 @@ if (courseData.success) {
 }
 
 const goToDetail = (row) => {
-  router.push(`/admin/dashboard/detail/${row.course_id}`)
+  router.push(`/staff/dashboard/detail/${row.course_id}`)
 }
 
 // { "course_id": 30, "title": "Advanced Components", "description": "\nAdvanced components in Nuxt 3 offer powerful features such as the Composition API for reusable logic, Suspense components for handling asynchronous data, and built-in support for SSR and SSG for better performance and SEO. They also include auto-imported components, modular architecture, TypeScript support, dynamic imports for lazy-loading, custom directives and plugins, reactive state management with Pinia, middleware and route guards for pre-rendering logic, lifecycle hooks for fine-grained control, and various performance optimizations like tree-shaking and code splitting. These features enable the creation of highly interactive, performant, and maintainable web applications.", "instructor_id": 18, "price": 90000, "category": "basic", "is_trial": true, "is_verify": true, "is_submit": false, "is_update": null, "image_url": "https://1st-store.uk/files/1720022303466-nuxt-js.jpg", "hour": 300, "create_at": 1719944470600, "update_at": null, "comments": null, "comment_owner": null }

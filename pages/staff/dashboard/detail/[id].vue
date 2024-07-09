@@ -123,6 +123,7 @@
 
 <script setup>
 import { reloadState } from '~/stores/storeModal'
+const checkAuth = storeToRefs(reloadState()).checkAuth
 import { Icon } from '@iconify/vue'
 import Course from '../course.vue';
 const isSubmit = ref(false)
@@ -138,6 +139,8 @@ const toast = useToast()
 const verifyOption = ['Verified', 'Not Verified']
 const commentReply = ref('')  
 const isVerify = ref(verifyOption[0])
+
+checkAuth.value++
 // const reloadPage = async () => {
 //   const commentList = await $fetch('https://mma.hoanglinh9955.workers.dev/api/user/getCommentByCourseId', {
 //         query: { course_id: `${id}` },
@@ -171,7 +174,7 @@ const isVerify = ref(verifyOption[0])
 //   }]
 // ]
 
-const dataCourse = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/getCourseDetail', {
+const dataCourse = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/getCourseDetail', {
   query: { course_id: `${id}` },
   headers: {
     'Authorization': `Bearer ${token.value}`
@@ -186,7 +189,7 @@ if (dataCourse.success) {
 
 
 const reloadPage = async () => {
-  const dataCourse = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/getCourseDetail', {
+  const dataCourse = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/getCourseDetail', {
   query: { course_id: `${id}` },
   headers: {
     'Authorization': `Bearer ${token.value}`
@@ -265,7 +268,7 @@ const submitComment = async () => {
       is_verify: isVerify.value == 'Verified' ? true : false
     }
 
-    const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/admin/addComment', {
+    const response = await $fetch('https://mma.hoanglinh9955.workers.dev/api/staff/addComment', {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token.value}`

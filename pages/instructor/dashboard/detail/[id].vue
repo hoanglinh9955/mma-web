@@ -14,8 +14,24 @@
       </div>
       <div class="flex space-x-10 w-full">
         <div class="w-1/2">
-          <h3 v-if="course.comments" class="text-lg"> <span class="font-medium"> {{ course.comment_owner }}:
-            </span>{{ course.comments }}</h3>
+          <div class="flex flex-col w-full space-y-4 shadow-2xl bg-grey-50 rounded-2xl p-10" v-if="!course.is_submit"> 
+            <!-- first row -->
+            <div class="flex space-y-5 w-full justify-between">
+              <div class="flex space-x-2 items-center"> 
+                <UAvatar :src="course.comment_owner_avatar" size="md" />
+                <UBadge class="h-4" size="sm" :label="'Role: '+ course.comment_owner.split('|')[0]" color="red" variant="subtle" />
+                <h3>Name: {{ course.comment_owner.split('|')[1] }}</h3>
+              </div>
+              <h3>{{ new Date(course.comment_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }} - {{new Date(course.comment_at).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}}</h3>
+            </div>
+            
+            <div class="flex space-x-5"> 
+              <UBadge size="xs" label="Verified" color="green" variant="subtle" />
+              <h3>{{ course.comments}}</h3>
+              
+            </div>
+          </div>
+          <h3 class="text-red-500 animate-bounce text-lg" v-else>waiting admin and staff to verify ...</h3>
         </div>
         <div class="flex flex-col space-y-2 w-1/2">
           <h3 class="text-lg"> <span class="font-medium"> Category: </span> {{ course.category }}</h3>
@@ -57,8 +73,8 @@
         </div>
       </div>
       
-      <h3 class="text-center text-3xl font-medium py-5">Comments</h3>
-      <h3 class="text-center text-xl py10" v-if="comments == null">No Comment Found</h3>
+      <h3 v-if="course.is_verify" class="text-center text-3xl font-medium py-5">Comments</h3>
+      <h3 class="text-center text-xl py10" v-if="comments == null && course.is_verify">No Comment Found</h3>
       <div class="flex flex-col space-y-6 pb-10 w-3/4">
         <div v-for="item in comments" :key="item.comment_id" class="flex shadow-lg bg-white rounded-xl p-6">
           <div class="w-12 h-12 rounded-full overflow-hidden">
@@ -85,7 +101,7 @@
             <!-- reply  -->
             <div v-if="item.comment_id == comment_id_reply" class="ml-6 relative flex items-start space-x-2">
               <img :src="userInfor.image_url" alt="avatar" class="mt-4 w-12 h-12 rounded-full overflow-hidden">
-              <UTextarea resize v-model="replyText" @keyup.enter="submitReply"
+              <UTextarea resize v-model="replyText"
                 class="w-full border-gray-200 rounded-lg py-4" placeholder="Reply here..." />
               <UButton :loading="isSubmit" variant="soft" class="absolute right-2 bottom-6 p-2 rounded-full"
                 icon="i-heroicons-paper-airplane" @click="submitReply" />
@@ -113,7 +129,7 @@
                   <p class="text-gray-600">{{ reply.comment }}</p>
                 </div>
                 <div v-else-if="comment_id_reply == reply.comment_id" class="relative w-full ml-2">
-                  <UTextarea resize v-model="replyText" @keyup.enter="submitEdit"
+                  <UTextarea resize v-model="replyText"
                     class="w-full border-gray-200 rounded-lg py-2" placeholder="Edit here..." />
                   <UButton :loading="isSubmit" variant="soft" class="absolute right-2 bottom-6 p-2 rounded-full"
                     icon="i-heroicons-paper-airplane" @click="submitEdit" />
@@ -139,6 +155,7 @@
 
 <script setup>
 import { reloadState } from '~/stores/storeModal'
+const checkAuth = storeToRefs(reloadState()).checkAuth
 import { Icon } from '@iconify/vue'
 const isSubmit = ref(false)
 const token = storeToRefs(reloadState()).token
@@ -155,7 +172,7 @@ const isDelete = ref(false)
 const editId = ref(0)
 const deleteId = ref(0)
 const toast = useToast()
-
+checkAuth.value++
 const reloadPage = async () => {
   const commentList = await $fetch('https://mma.hoanglinh9955.workers.dev/api/user/getCommentByCourseId', {
         query: { course_id: `${id}` },
@@ -165,6 +182,8 @@ const reloadPage = async () => {
       })
       if (commentList.success) {
         comments.value = commentList.comments
+      }else{
+        
       }
 }
 
@@ -210,6 +229,9 @@ const commentList = await $fetch('https://mma.hoanglinh9955.workers.dev/api/user
 })
 if (commentList.success) {
   comments.value = commentList.comments
+}else{
+
+
 }
 
 const checkReply = (comment_id) => {
@@ -244,6 +266,8 @@ const deleteComment = async () => {
       replyText.value = ''
       comment_id_reply.value = 0
       isSubmit.value = false
+    }else{
+      toast.add({title: 'Error', description: response.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
     }
 }
 
@@ -275,7 +299,7 @@ const submitReply = async () => {
       comment_id_reply.value = 0
       isSubmit.value = false
     } else {
-      console.error('Failed to submit reply:', response.message)
+      toast.add({title: 'Error', description: response.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
     }
   }
 }
@@ -306,7 +330,7 @@ const submitEdit = async () => {
       comment_id_reply.value = 0
       isSubmit.value = false
     } else {
-      console.error('Failed to Edit Comment:', response.message)
+      toast.add({title: 'Error', description: response.message, icon: 'i-heroicons-x-circle', color: 'red', duration: 5000, isClosable: true})
     }
   }
 }
